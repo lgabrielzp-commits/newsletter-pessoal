@@ -25,6 +25,7 @@ class Fonte(BaseModel):
     peso: float = 1.0
     paywall: bool = False
     categorias: list[str] = Field(default_factory=list)
+    feeds: list[str] = Field(default_factory=list)
 
 
 class ColetaConfig(BaseModel):

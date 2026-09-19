@@ -12,83 +12,107 @@ categorias:
 fontes:
   # peso: influencia o ranking (Fase 4). 1.0 = padrão.
   # paywall: true faz o pipeline preferir excerpt + cobertura cruzada.
+  # feeds: URLs RSS verificadas manualmente (curl) em 2026-09-19.
   - id: g1
     nome: "G1"
     peso: 1.0
     paywall: false
     categorias: [politica, financas]
+    feeds:
+      - https://g1.globo.com/rss/g1/economia/
+      - https://g1.globo.com/rss/g1/politica/
 
   - id: folha
     nome: "Folha de S.Paulo"
     peso: 1.1
     paywall: true
     categorias: [politica, financas, ia]
+    feeds:
+      - https://feeds.folha.uol.com.br/mercado/rss091.xml
+      - https://feeds.folha.uol.com.br/poder/rss091.xml
+      - https://feeds.folha.uol.com.br/tec/rss091.xml
 
   - id: estadao
     nome: "Estadão"
     peso: 1.1
     paywall: true
     categorias: [politica, financas]
+    feeds:
+      - https://www.estadao.com.br/arc/outboundfeeds/rss/?outputType=xml
 
   - id: infomoney
     nome: "InfoMoney"
     peso: 1.0
     paywall: false
     categorias: [financas]
+    feeds:
+      - https://www.infomoney.com.br/feed/
 
   - id: nyt
     nome: "New York Times"
     peso: 1.0
     paywall: true
     categorias: [ia, financas]
+    feeds:
+      - https://rss.nytimes.com/services/xml/rss/nyt/Business.xml
+      - https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml
 
   - id: valor_economico
     nome: "Valor Econômico"
     peso: 1.1
     paywall: true
     categorias: [financas, politica]
+    feeds:
+      - https://valor.globo.com/rss/valor
 
   - id: bloomberg
     nome: "Bloomberg"
     peso: 1.1
     paywall: true
     categorias: [financas]
+    feeds:
+      - https://feeds.bloomberg.com/markets/news.rss
 
   - id: the_verge
     nome: "The Verge"
     peso: 1.0
     paywall: false
     categorias: [ia]
+    feeds:
+      - https://www.theverge.com/rss/index.xml
 
   - id: mit_tech_review
     nome: "MIT Technology Review"
     peso: 1.0
     paywall: true
     categorias: [ia]
+    feeds:
+      - https://www.technologyreview.com/feed/
 
   - id: agencia_brasil
     nome: "Agência Brasil"
     peso: 0.9
     paywall: false
     categorias: [politica, financas]
-
-  - id: bcb
-    nome: "Banco Central do Brasil"
-    peso: 1.0
-    paywall: false
-    categorias: [financas]
+    feeds:
+      - https://agenciabrasil.ebc.com.br/rss/politica/feed.xml
+      - https://agenciabrasil.ebc.com.br/rss/economia/feed.xml
 
   - id: poder360
     nome: "Poder360"
     peso: 0.9
     paywall: false
     categorias: [politica]
+    feeds:
+      - https://www.poder360.com.br/feed/
 
   - id: jota
     nome: "JOTA"
     peso: 0.9
     paywall: false
     categorias: [politica]
+    feeds:
+      - https://www.jota.info/feed
 
 coleta:
   janela_horas: 48
