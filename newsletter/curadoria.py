@@ -217,7 +217,7 @@ def executar_curadoria(config: Config, conn: sqlite3.Connection) -> None:
         finais_por_categoria[resultado.categoria].append((cluster, score_final, resultado))
 
     # limpa seleção anterior (idempotente entre execuções)
-    conn.execute("UPDATE artigos SET incluido_na_edicao = NULL")
+    conn.execute("UPDATE artigos SET incluido_na_edicao = NULL, ordem_edicao = NULL")
 
     max_por_categoria = config.curadoria.max_noticias_por_categoria
     for categoria_id, itens in finais_por_categoria.items():
@@ -225,12 +225,12 @@ def executar_curadoria(config: Config, conn: sqlite3.Connection) -> None:
         escolhidos = itens[:max_por_categoria]
 
         print(f"\n  === {categoria_id} ({len(escolhidos)} escolhidas de {len(itens)} substantivas) ===")
-        for cluster, score, resultado in escolhidos:
+        for posicao, (cluster, score, resultado) in enumerate(escolhidos, start=1):
             print(f"    [{score:6.2f}] (rel={resultado.relevancia}, {len(cluster.fontes)} fonte(s)) {cluster.titulo_repr[:70]}")
 
             conn.executemany(
-                "UPDATE artigos SET categoria = ?, incluido_na_edicao = 1 WHERE id = ?",
-                [(categoria_id, mid) for mid in cluster.membro_ids],
+                "UPDATE artigos SET categoria = ?, incluido_na_edicao = 1, ordem_edicao = ? WHERE id = ?",
+                [(categoria_id, posicao, mid) for mid in cluster.membro_ids],
             )
     conn.commit()
 

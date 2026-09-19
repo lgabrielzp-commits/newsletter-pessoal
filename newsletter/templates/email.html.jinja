@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>Newsletter — {{ data_extenso }}</title>
+<style>
+  body, table, td { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+  @media (prefers-color-scheme: dark) {
+    .bg-card { background-color: #1e1e1e !important; }
+    .text-body { color: #dddddd !important; }
+    .text-muted { color: #999999 !important; }
+  }
+</style>
+</head>
+<body style="margin:0; padding:0; background-color:#f8f9fa;">
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0;">
+    {{ preheader }}
+  </div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f8f9fa; padding:20px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" class="bg-card"
+               style="background-color:#ffffff; max-width:600px; width:100%; border-radius:8px; overflow:hidden;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background-color:{{ design.cor_fundo_header }}; padding:36px 32px; text-align:center; border-bottom:3px solid {{ design.cor_primaria }};">
+              <span style="color:#ffffff; font-size:28px; font-weight:800; letter-spacing:-0.5px;">NEWSLETTER</span><br>
+              <span style="color:#aaaaaa; font-size:12px; text-transform:uppercase; letter-spacing:1px;">{{ data_extenso }}</span>
+            </td>
+          </tr>
+
+          <!-- CTA edição completa -->
+          <tr>
+            <td style="padding:24px 32px 8px 32px;" class="text-body">
+              <p style="margin:0 0 16px 0; font-size:14px; line-height:1.5; color:#555555;" class="text-muted">
+                Resumo das {{ total_materias }} notícias de hoje. Pra ler o texto completo, contexto
+                e perspectivas divergentes de cada uma, abra a edição no navegador:
+              </p>
+              <table role="presentation" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="background-color:{{ design.cor_primaria }}; border-radius:4px;">
+                    <a href="{{ edicao_url }}" target="_blank"
+                       style="display:inline-block; padding:12px 24px; color:#ffffff; text-decoration:none; font-size:14px; font-weight:600;">
+                      → Ler edição completa
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          {% for categoria in categorias %}
+          {% set materias = edicao.get(categoria.id, []) %}
+          {% if materias %}
+          <!-- Seção: {{ categoria.nome }} -->
+          <tr>
+            <td style="padding:28px 32px 4px 32px;">
+              <span style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:{{ design.cor_primaria }};">
+                {{ categoria.nome }}
+              </span>
+            </td>
+          </tr>
+          {% for materia in materias %}
+          <tr>
+            <td style="padding:12px 32px; {% if not loop.last %}border-bottom:1px solid #eeeeee;{% endif %}">
+              <a href="{{ materia.url }}" target="_blank" style="text-decoration:none;">
+                <span style="display:block; font-size:16px; font-weight:700; color:{{ design.cor_fundo_header }}; line-height:1.35; margin-bottom:6px;" class="text-body">
+                  {{ materia.titulo }}
+                </span>
+              </a>
+              <span style="display:block; font-size:14px; line-height:1.55; color:#555555; margin-bottom:8px;" class="text-muted">
+                {{ materia.resumo }}
+              </span>
+              <span style="font-size:11px; color:#999999; text-transform:uppercase; letter-spacing:0.3px;">
+                {{ materia.badges | join(' · ') }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+          {% endif %}
+          {% endfor %}
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f8f9fa; padding:20px 32px; border-top:1px solid #e0e0e0;">
+              <span style="font-size:11px; color:#888888; line-height:1.6;">
+                Newsletter Pessoal · Edição de {{ data_extenso }}<br>
+                Fontes: {{ nomes_fontes | join(', ') }}
+              </span>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

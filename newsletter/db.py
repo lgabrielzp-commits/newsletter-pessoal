@@ -84,6 +84,7 @@ _COLUNAS_NOVAS = {
         "http_status": "INTEGER",
         "paywall_provavel": "INTEGER",
         "categorias_feed": "TEXT",  # categoria(s) do feed RSS de origem, ex. "financas" ou "politica,financas"
+        "ordem_edicao": "INTEGER",  # posição de relevância dentro da categoria (1 = melhor), da Fase 4
     },
 }
 

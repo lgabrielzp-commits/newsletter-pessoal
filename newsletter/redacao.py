@@ -176,6 +176,19 @@ def executar_redacao(config: Config, conn: sqlite3.Connection) -> None:
         print("[Fase 5] Nenhum artigo selecionado (rode a Fase 4 antes). Nada a redigir.")
         return
 
+    # remove matérias de clusters que já não fazem parte da seleção atual
+    # (ex.: Haiku reclassificou entre execuções e outra história tomou o lugar)
+    cluster_ids_atuais = {row["cluster_id"] for row in linhas}
+    if cluster_ids_atuais:
+        placeholders = ",".join("?" for _ in cluster_ids_atuais)
+        removidas = conn.execute(
+            f"DELETE FROM materias WHERE cluster_id NOT IN ({placeholders})",
+            tuple(cluster_ids_atuais),
+        ).rowcount
+        if removidas:
+            print(f"[Fase 5] {removidas} matéria(s) de edições anteriores removida(s) (não fazem mais parte da seleção atual).")
+        conn.commit()
+
     nomes_por_fonte = {f.id: f.nome for f in config.fontes}
 
     clusters: dict[int, list[dict]] = {}

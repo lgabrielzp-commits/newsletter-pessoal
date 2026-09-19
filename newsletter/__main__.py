@@ -17,6 +17,7 @@ from newsletter.db import init_db, log
 from newsletter.extraction import executar_extracao
 from newsletter.links import executar_gestao_links
 from newsletter.redacao import executar_redacao
+from newsletter.render import executar_renderizacao
 
 
 def fase0_setup():
@@ -61,6 +62,7 @@ def main() -> int:
     executar_clustering(conn, config.curadoria)
     executar_curadoria(config, conn)
     executar_redacao(config, conn)
+    executar_renderizacao(config, conn)
 
     conn.close()
     return 0

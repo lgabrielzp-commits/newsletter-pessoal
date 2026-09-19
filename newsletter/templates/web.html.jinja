@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsletter | Finanças, Política e IA</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: #f8f9fa;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .header {
+            background: {{ design.cor_fundo_header }};
+            color: white;
+            padding: 48px 40px;
+            text-align: center;
+            border-bottom: 3px solid {{ design.cor_primaria }};
+        }
+
+        .header h1 { font-size: 36px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .header p { font-size: 13px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+
+        .tabs { display: flex; background: white; border-bottom: 1px solid #e0e0e0; }
+
+        .tab-button {
+            flex: 1;
+            padding: 16px 20px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.2s ease;
+            border-bottom: 3px solid transparent;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-button:hover { background: #f8f9fa; color: #333; }
+        .tab-button:focus-visible { outline: 2px solid {{ design.cor_primaria }}; outline-offset: -2px; }
+
+        .tab-button.active {
+            color: {{ design.cor_fundo_header }};
+            border-bottom-color: {{ design.cor_primaria }};
+            background: #fafafa;
+        }
+
+        .content { padding: 40px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .empty-state { color: #888; font-size: 14px; text-align: center; padding: 24px 0; }
+
+        .news-item {
+            margin-bottom: 32px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        .news-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+        .news-header { cursor: pointer; transition: all 0.2s ease; }
+        .news-header:hover { padding-left: 4px; }
+        .news-header:focus-visible { outline: 2px solid {{ design.cor_primaria }}; }
+
+        .news-title { font-size: 18px; font-weight: 700; color: {{ design.cor_fundo_header }}; margin-bottom: 10px; line-height: 1.35; }
+        .news-summary { font-size: 14px; line-height: 1.6; color: #555; margin-bottom: 12px; }
+
+        .expand-indicator {
+            font-size: 12px;
+            color: {{ design.cor_primaria }};
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 8px;
+        }
+
+        .news-expanded { display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid #f0f0f0; }
+        .news-expanded.show { display: block; }
+
+        .news-full-text { font-size: 14px; line-height: 1.65; color: #444; margin-bottom: 14px; }
+        .news-full-text p { margin-bottom: 12px; }
+
+        .perspective {
+            background: #f5f5f5;
+            border-left: 3px solid {{ design.cor_primaria }};
+            padding: 12px 14px;
+            margin: 14px 0;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #555;
+        }
+        .perspective + .perspective { margin-top: 8px; }
+        .perspective-label { font-weight: 700; color: {{ design.cor_fundo_header }}; margin-bottom: 4px; font-size: 12px; }
+
+        .source-link {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 8px 14px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            color: {{ design.cor_primaria }};
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .source-link:hover { background: {{ design.cor_primaria }}; color: white; border-color: {{ design.cor_primaria }}; }
+
+        .badges { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+        .badge {
+            display: inline-block;
+            background: #e8e8e8;
+            color: #333;
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 24px 40px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 12px;
+            color: #777;
+            line-height: 1.6;
+        }
+        .footer strong { color: #333; }
+
+        @media (max-width: 600px) {
+            body { padding: 0; }
+            .container { border-radius: 0; }
+            .header { padding: 32px 20px; }
+            .header h1 { font-size: 28px; }
+            .content { padding: 20px; }
+            .tab-button { font-size: 11px; padding: 14px 8px; }
+            .footer { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>NEWSLETTER</h1>
+            <p>Notícias de Finanças, Política e IA — {{ data_extenso }}</p>
+        </div>
+
+        <div class="tabs" role="tablist">
+            {% for categoria in categorias %}
+            <button
+                class="tab-button{% if loop.first %} active{% endif %}"
+                role="tab"
+                aria-selected="{{ 'true' if loop.first else 'false' }}"
+                aria-controls="{{ categoria.id }}"
+                id="tab-{{ categoria.id }}"
+                onclick="switchTab('{{ categoria.id }}', this)"
+            >{{ categoria.nome }}</button>
+            {% endfor %}
+        </div>
+
+        <div class="content">
+            {% for categoria in categorias %}
+            <div id="{{ categoria.id }}" class="tab-content{% if loop.first %} active{% endif %}"
+                 role="tabpanel" aria-labelledby="tab-{{ categoria.id }}">
+                {% set materias = edicao.get(categoria.id, []) %}
+                {% if not materias %}
+                <p class="empty-state">Nenhuma notícia substantiva encontrada nesta categoria hoje.</p>
+                {% endif %}
+                {% for materia in materias %}
+                <div class="news-item">
+                    <div class="news-header" tabindex="0" onclick="toggleExpand(this)"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleExpand(this);}">
+                        <div class="news-title">{{ materia.titulo }}</div>
+                        <div class="news-summary">{{ materia.resumo }}</div>
+                        <div class="expand-indicator">+ Leia mais</div>
+                    </div>
+                    <div class="news-expanded">
+                        <div class="news-full-text">
+                            {% for paragrafo in materia.paragrafos %}
+                            <p>{{ paragrafo }}</p>
+                            {% endfor %}
+                        </div>
+                        {% if materia.perspectivas %}
+                        {% for p in materia.perspectivas %}
+                        <div class="perspective">
+                            <div class="perspective-label">📰 {{ p.fonte }}</div>
+                            {{ p.texto }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        <div class="badges">
+                            {% for badge in materia.badges %}
+                            <span class="badge">{{ badge }}</span>
+                            {% endfor %}
+                        </div>
+                        <a href="{{ materia.url }}" class="source-link" target="_blank" rel="noopener noreferrer">→ Acessar fonte original</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="footer">
+            <p><strong>Newsletter Pessoal</strong> • Edição de {{ data_extenso }}</p>
+            <p>Fontes: {{ nomes_fontes | join(', ') }}</p>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName, botao) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(b => {
+                b.classList.remove('active');
+                b.setAttribute('aria-selected', 'false');
+            });
+            document.getElementById(tabName).classList.add('active');
+            botao.classList.add('active');
+            botao.setAttribute('aria-selected', 'true');
+            history.replaceState(null, '', '#' + tabName);
+        }
+
+        function toggleExpand(header) {
+            const expanded = header.nextElementSibling;
+            const indicator = header.querySelector('.expand-indicator');
+            expanded.classList.toggle('show');
+            indicator.textContent = expanded.classList.contains('show') ? '− Ler menos' : '+ Leia mais';
+        }
+
+        // deep-link: abre direto na aba da URL (#politica), se existir
+        (function () {
+            const hash = window.location.hash.replace('#', '');
+            if (hash) {
+                const botao = document.getElementById('tab-' + hash);
+                if (botao) switchTab(hash, botao);
+            }
+        })();
+    </script>
+</body>
+</html>
