@@ -35,6 +35,7 @@ class Cluster:
     texto_repr: str
     data_mais_recente: datetime | None
     categorias_candidatas: set[str]
+    urls: set[str]
     score_heuristico: float = 0.0
 
 
@@ -48,7 +49,7 @@ def _montar_clusters(conn: sqlite3.Connection, config: Config) -> list[Cluster]:
     linhas = conn.execute(
         """
         SELECT id, cluster_id, titulo, texto_extraido, excerpt, fonte_id,
-               data_publicacao, categorias_feed
+               data_publicacao, categorias_feed, url_final, url_canonica
         FROM artigos
         """
     ).fetchall()
@@ -87,6 +88,7 @@ def _montar_clusters(conn: sqlite3.Connection, config: Config) -> list[Cluster]:
                 texto_repr=(representante["texto_extraido"] or representante["excerpt"] or "")[:4000],
                 data_mais_recente=data_mais_recente,
                 categorias_candidatas=categorias_candidatas or {"financas"},
+                urls={m["url_final"] or m["url_canonica"] for m in membros},
             )
         )
     return clusters
@@ -193,6 +195,23 @@ def executar_curadoria(config: Config, conn: sqlite3.Connection) -> None:
     clusters = _montar_clusters(conn, config)
     for c in clusters:
         c.score_heuristico = _score_heuristico(c, config)
+
+    urls_recentes = {
+        r["url_canonica"]
+        for r in conn.execute(
+            f"""
+            SELECT url_canonica FROM urls_enviadas
+            WHERE data_envio >= datetime('now', ?)
+            """,
+            (f"-{config.curadoria.janela_dedupe_dias} days",),
+        )
+    }
+    antes = len(clusters)
+    clusters = [c for c in clusters if not (c.urls & urls_recentes)]
+    excluidos_por_repeticao = antes - len(clusters)
+    if excluidos_por_repeticao:
+        print(f"[Fase 4] {excluidos_por_repeticao} cluster(s) excluído(s) por já terem sido "
+              f"enviados nos últimos {config.curadoria.janela_dedupe_dias} dias.")
 
     candidatos = _pre_filtrar(clusters, config)
     print(f"[Fase 4] {len(clusters)} clusters totais → {len(candidatos)} candidatos "
