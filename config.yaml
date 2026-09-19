@@ -151,6 +151,12 @@ publicacao:
   base_url: "https://lgabrielzp-commits.github.io/newsletter-pessoal"
   branch: "gh-pages"
 
+armazenamento:
+  # branch órfã onde o SQLite fica salvo entre execuções no GitHub Actions
+  # (runners são efêmeros — sem isso, a dedupe de 7 dias não funcionaria).
+  # Rodando local, isso é ignorado: o banco fica só na sua máquina.
+  branch: "dados"
+
 entrega:
   metodo: "email"
   assunto_template: "Newsletter — {data}"

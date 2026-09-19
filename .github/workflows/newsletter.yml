@@ -1,0 +1,40 @@
+name: Newsletter diária
+
+on:
+  schedule:
+    # 09:00 UTC = 06:00 horário de Brasília (Brasil não observa horário de
+    # verão desde 2019, então America/Sao_Paulo é UTC-3 o ano todo).
+    # Cron do GitHub Actions não garante o minuto exato — pode atrasar
+    # alguns minutos em horários de pico da plataforma.
+    - cron: "0 9 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  rodar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configura Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instala dependências
+        run: pip install -e .
+
+      - name: Configura identidade git (pra commits em gh-pages/dados)
+        run: |
+          git config user.name "newsletter-bot"
+          git config user.email "actions@users.noreply.github.com"
+
+      - name: Roda o pipeline completo
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          NEWSLETTER_RECIPIENT: ${{ secrets.NEWSLETTER_RECIPIENT }}
+        run: python -m newsletter

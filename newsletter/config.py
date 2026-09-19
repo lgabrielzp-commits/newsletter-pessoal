@@ -74,6 +74,10 @@ class PublicacaoConfig(BaseModel):
     branch: str = "gh-pages"
 
 
+class ArmazenamentoConfig(BaseModel):
+    branch: str = "dados"
+
+
 class EntregaConfig(BaseModel):
     metodo: str = "email"
     assunto_template: str = "Newsletter — {data}"
@@ -100,6 +104,7 @@ class Config(BaseModel):
     publicacao: PublicacaoConfig
     entrega: EntregaConfig
     design: DesignConfig
+    armazenamento: ArmazenamentoConfig = Field(default_factory=ArmazenamentoConfig)
     secrets: Secrets = Field(default_factory=Secrets)
 
     def fontes_por_categoria(self, categoria_id: str) -> list[Fonte]:

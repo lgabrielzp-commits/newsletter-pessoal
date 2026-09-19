@@ -6,5 +6,7 @@ data/*.db
 data/*.db-journal
 output/
 .gh-pages-worktree/
+.dados-worktree/
+.DS_Store
 .pytest_cache/
 *.egg-info/

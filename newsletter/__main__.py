@@ -17,6 +17,7 @@ from newsletter.db import init_db, log
 from newsletter.extraction import executar_extracao
 from newsletter.links import executar_gestao_links
 from newsletter.entrega import executar_entrega
+from newsletter.persistencia import restaurar_db, salvar_db
 from newsletter.publicacao import executar_publicacao
 from newsletter.redacao import executar_redacao
 from newsletter.render import executar_renderizacao
@@ -29,6 +30,7 @@ def fase0_setup():
         print(f"[Fase 0] Falha ao carregar config.yaml: {exc}", file=sys.stderr)
         raise SystemExit(1)
 
+    restaurar_db(config)
     conn = init_db(DB_PATH)
     log(conn, fase="fase0_setup", status="ok", mensagem="config e banco inicializados")
 
@@ -69,6 +71,7 @@ def main() -> int:
     executar_entrega(config, conn)
 
     conn.close()
+    salvar_db(config)
     return 0
 
 

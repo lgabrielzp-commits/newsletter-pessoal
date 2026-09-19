@@ -13,47 +13,16 @@ from __future__ import annotations
 
 import shutil
 import sqlite3
-import subprocess
 from datetime import datetime
-from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from newsletter.config import Config, ROOT_DIR
 from newsletter.db import log
+from newsletter.git_utils import garantir_worktree, run
 from newsletter.render import OUTPUT_DIR, TEMPLATES_DIR, _data_extenso
 
 WORKTREE_DIR = ROOT_DIR / ".gh-pages-worktree"
-
-
-def _run(args: list[str], cwd: Path) -> subprocess.CompletedProcess:
-    return subprocess.run(args, cwd=cwd, capture_output=True, text=True)
-
-
-def _branch_existe_no_remoto(branch: str) -> bool:
-    resultado = _run(["git", "ls-remote", "--heads", "origin", branch], cwd=ROOT_DIR)
-    return bool(resultado.stdout.strip())
-
-
-def _garantir_worktree(branch: str) -> None:
-    if WORKTREE_DIR.exists():
-        return
-
-    _run(["git", "fetch", "origin", branch], cwd=ROOT_DIR)
-
-    if _branch_existe_no_remoto(branch):
-        resultado = _run(
-            ["git", "worktree", "add", str(WORKTREE_DIR), branch],
-            cwd=ROOT_DIR,
-        )
-    else:
-        resultado = _run(
-            ["git", "worktree", "add", "--orphan", "-b", branch, str(WORKTREE_DIR)],
-            cwd=ROOT_DIR,
-        )
-
-    if resultado.returncode != 0:
-        raise RuntimeError(f"Falha ao criar worktree do GitHub Pages: {resultado.stderr}")
 
 
 def _montar_arquivo_index(config: Config) -> str:
@@ -81,7 +50,7 @@ def executar_publicacao(config: Config, conn: sqlite3.Connection) -> None:
 
     branch = config.publicacao.branch
     try:
-        _garantir_worktree(branch)
+        garantir_worktree(WORKTREE_DIR, branch)
     except RuntimeError as exc:
         print(f"[Fase 7] {exc}")
         log(conn, fase="fase7_publicacao", status="erro", mensagem=str(exc))
@@ -113,14 +82,14 @@ def executar_publicacao(config: Config, conn: sqlite3.Connection) -> None:
     arquivo_html = _montar_arquivo_index(config)
     (WORKTREE_DIR / "index.html").write_text(arquivo_html, encoding="utf-8")
 
-    _run(["git", "add", "-A"], cwd=WORKTREE_DIR)
-    diff_check = _run(["git", "diff", "--cached", "--quiet"], cwd=WORKTREE_DIR)
+    run(["git", "add", "-A"], cwd=WORKTREE_DIR)
+    diff_check = run(["git", "diff", "--cached", "--quiet"], cwd=WORKTREE_DIR)
     if diff_check.returncode == 0:
         print("[Fase 7] Nada novo pra publicar (site já está atualizado).")
         log(conn, fase="fase7_publicacao", status="ok", mensagem="sem mudanças")
         return
 
-    commit = _run(
+    commit = run(
         ["git", "commit", "-m", f"Publica edição de {mais_recente}"],
         cwd=WORKTREE_DIR,
     )
@@ -129,7 +98,7 @@ def executar_publicacao(config: Config, conn: sqlite3.Connection) -> None:
         log(conn, fase="fase7_publicacao", status="erro", mensagem=commit.stderr)
         return
 
-    push = _run(["git", "push", "origin", branch], cwd=WORKTREE_DIR)
+    push = run(["git", "push", "origin", branch], cwd=WORKTREE_DIR)
     if push.returncode != 0:
         print(f"[Fase 7] Falha ao publicar (push): {push.stderr}")
         log(conn, fase="fase7_publicacao", status="erro", mensagem=push.stderr)
