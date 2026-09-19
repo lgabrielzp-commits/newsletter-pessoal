@@ -29,6 +29,15 @@ async def get_limitado(client: httpx.AsyncClient, url: str, max_bytes: int) -> h
     return resp
 
 
+async def resolver_destino(client: httpx.AsyncClient, url: str) -> str | None:
+    """Descobre pra onde a URL redireciona, sem baixar o corpo (HEAD)."""
+    try:
+        resp = await client.head(url, follow_redirects=True, timeout=10)
+        return str(resp.url)
+    except Exception:
+        return None
+
+
 class RobotsCache:
     """Consulta robots.txt uma vez por host e guarda o resultado.
 

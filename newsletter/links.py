@@ -25,7 +25,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from newsletter.config import Config
 from newsletter.db import log
 from newsletter.extraction import extrair_texto
-from newsletter.http_utils import RobotsCache, get_limitado
+from newsletter.http_utils import RobotsCache, get_limitado, resolver_destino
 
 CONCORRENCIA_MAX = 10
 
@@ -83,17 +83,32 @@ async def _resolver_um(
     max_bytes: int,
     artigo_id: int,
     url_original: str,
-) -> tuple[int, str, int | None, str | None]:
-    """Retorna (artigo_id, url_final, http_status, texto). Nunca lança."""
+) -> tuple[int, str, int | None, str | None, str | None]:
+    """Retorna (artigo_id, url_final, http_status, texto, motivo_falha).
+
+    `motivo_falha` existe porque antes qualquer problema virava um contador
+    genérico de "falha de rede": era impossível distinguir timeout de bloqueio
+    por robots ou de página grande demais, e portanto impossível diagnosticar.
+    """
     async with sem:
-        if not await robots.permitido(url_original):
-            # o link segue válido pro leitor; só não baixamos a página
-            return artigo_id, url_original, None, None
+        url_alvo = url_original
+
+        if not await robots.permitido(url_alvo):
+            # Pode ser um redirecionador de tracking (ex.: redir.folha.com.br,
+            # cujo robots.txt nega tudo) apontando pra uma matéria num domínio
+            # que permite acesso. O robots que vale é o de quem hospeda o
+            # conteúdo, então resolve o destino com um HEAD barato e reavalia.
+            destino = await resolver_destino(client, url_original)
+            if destino and destino != url_original and await robots.permitido(destino):
+                url_alvo = destino
+            else:
+                # o link segue válido pro leitor; só não baixamos a página
+                return artigo_id, url_original, None, None, "robots"
 
         try:
-            resp = await _get_com_retry(client, url_original, max_bytes)
-        except Exception:
-            return artigo_id, url_original, None, None
+            resp = await _get_com_retry(client, url_alvo, max_bytes)
+        except Exception as exc:
+            return artigo_id, url_original, None, None, type(exc).__name__
 
         url_final = str(resp.url)
         texto = None
@@ -118,7 +133,7 @@ async def _resolver_um(
         if not url_segura(url_final):
             url_final = url_original
 
-        return artigo_id, _limpar_query(url_final), resp.status_code, texto
+        return artigo_id, _limpar_query(url_final), resp.status_code, texto, None
 
 
 async def _resolver_todos(config: Config, pendentes: list[tuple[int, str]]):
@@ -149,11 +164,11 @@ def executar_gestao_links(config: Config, conn: sqlite3.Connection) -> None:
 
     resultados = asyncio.run(_resolver_todos(config, pendentes))
 
-    falhas = 0
+    motivos: dict[str, int] = {}
     extraidos = 0
-    for artigo_id, url_final, http_status, texto in resultados:
-        if http_status is None:
-            falhas += 1
+    for artigo_id, url_final, http_status, texto, motivo in resultados:
+        if motivo:
+            motivos[motivo] = motivos.get(motivo, 0) + 1
         if texto:
             extraidos += 1
             conn.execute(
@@ -185,13 +200,16 @@ def executar_gestao_links(config: Config, conn: sqlite3.Connection) -> None:
         )
         conn.commit()
 
-    print(f"[Fase 2] Links resolvidos: {len(resultados)} artigos ({falhas} com falha de rede, "
-          f"mantido fallback para a URL original do RSS nesses casos). "
-          f"{extraidos} textos já extraídos de brinde (sem segunda requisição).")
+    falhas = sum(motivos.values())
+    detalhe = ", ".join(f"{m}={n}" for m, n in sorted(motivos.items(), key=lambda x: -x[1]))
+    print(f"[Fase 2] Links resolvidos: {len(resultados)} artigos, "
+          f"{extraidos} com texto já extraído (sem segunda requisição).")
+    if falhas:
+        print(f"  {falhas} não baixados (link do RSS preservado): {detalhe}")
 
     log(
         conn,
         fase="fase2_links",
         status="ok",
-        mensagem=f"{len(resultados)} links resolvidos, {falhas} falhas, {extraidos} textos extraídos",
+        mensagem=f"{len(resultados)} links, {extraidos} textos, {falhas} não baixados ({detalhe})",
     )
