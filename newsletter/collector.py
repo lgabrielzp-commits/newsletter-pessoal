@@ -19,6 +19,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 
 from newsletter.config import Config, Fonte
 from newsletter.db import log
+from newsletter.links import url_segura
 
 
 @dataclass
@@ -82,9 +83,19 @@ async def _coletar_fonte(
             if not link or not titulo:
                 continue
 
+            # barra javascript:, data:, file: etc. antes de entrar no banco —
+            # essa URL vira um href clicável na página publicada
+            if not url_segura(link):
+                continue
+
             data_pub = _parse_data(entry)
             if data_pub is not None and (agora - data_pub) > janela:
                 continue  # fora da janela de coleta
+            if data_pub is not None and data_pub > agora + timedelta(hours=1):
+                # data no futuro (relógio errado na fonte, ou manipulação):
+                # sem isso, a recência no ranking da Fase 4 fica > 1 e o item
+                # domina a edição para sempre. Trata como "sem data".
+                data_pub = None
 
             excerpt = entry.get("summary", "") or entry.get("description", "")
             artigos.append(

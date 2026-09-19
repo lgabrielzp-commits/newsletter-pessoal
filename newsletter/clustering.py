@@ -14,12 +14,11 @@ from __future__ import annotations
 
 import sqlite3
 
-import numpy as np
 from rapidfuzz import fuzz, process
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from newsletter.config import CuradoriaConfig
+from newsletter.config import Config
 from newsletter.db import log
 
 
@@ -109,9 +108,18 @@ def _clusterizar_por_conteudo(
                 uf.union(ids[ia], ids[ib])
 
 
-def executar_clustering(conn: sqlite3.Connection, curadoria: CuradoriaConfig) -> None:
+def executar_clustering(config: Config, conn: sqlite3.Connection) -> None:
+    curadoria = config.curadoria
+    # Só a janela de coleta atual. O custo aqui é O(n²) em tempo E em memória
+    # (matrizes n×n), então deixar a tabela inteira entrar seria o suficiente
+    # pra estourar a RAM do runner conforme o histórico cresce.
     linhas = conn.execute(
-        "SELECT id, titulo, texto_extraido, excerpt, fonte_id, url_final FROM artigos"
+        """
+        SELECT id, titulo, texto_extraido, excerpt, fonte_id, url_final
+        FROM artigos
+        WHERE data_coleta >= datetime('now', ?)
+        """,
+        (f"-{config.coleta.janela_horas} hours",),
     ).fetchall()
 
     if not linhas:

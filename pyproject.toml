@@ -15,6 +15,7 @@ dependencies = [
     "scikit-learn>=1.4",
     "anthropic>=0.40",
     "jinja2>=3.1",
+    "tzdata>=2024.1",  # ZoneInfo depende do tz database do SO; garante em qualquer ambiente
 ]
 
 [project.optional-dependencies]
@@ -24,3 +25,6 @@ dev = [
 
 [tool.setuptools.packages.find]
 include = ["newsletter*"]
+
+[tool.setuptools.package-data]
+newsletter = ["templates/*.jinja"]

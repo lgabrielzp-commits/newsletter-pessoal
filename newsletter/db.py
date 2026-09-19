@@ -112,3 +112,39 @@ def log(conn: sqlite3.Connection, fase: str, status: str, mensagem: str = "") ->
         (fase, status, mensagem),
     )
     conn.commit()
+
+
+def podar(conn: sqlite3.Connection, retencao_artigos_dias: int, janela_dedupe_dias: int) -> None:
+    """Apaga dados que já não servem pra nada.
+
+    Sem isso o banco cresce ~4MB/dia indefinidamente (estourando o limite de
+    100MB por arquivo do GitHub em poucas semanas) e, pior, o clustering da
+    Fase 3b — que é O(n²) sobre tudo que estiver na tabela — passaria a
+    comparar centenas de milhares de artigos, consumindo dezenas de GB de RAM.
+
+    `artigos` é cache de trabalho: o que interessa é a janela de coleta atual,
+    reconstruída a cada execução a partir dos feeds. `urls_enviadas` é o que
+    de fato precisa sobreviver, e só dentro da janela de dedupe.
+    """
+    artigos = conn.execute(
+        "DELETE FROM artigos WHERE data_coleta < datetime('now', ?)",
+        (f"-{retencao_artigos_dias} days",),
+    ).rowcount
+
+    urls = conn.execute(
+        "DELETE FROM urls_enviadas WHERE data_envio < datetime('now', ?)",
+        (f"-{janela_dedupe_dias} days",),
+    ).rowcount
+
+    # matérias órfãs (cluster já podado) e logs antigos
+    conn.execute(
+        "DELETE FROM materias WHERE cluster_id NOT IN (SELECT DISTINCT cluster_id FROM artigos)"
+    )
+    logs = conn.execute(
+        "DELETE FROM log_execucao WHERE timestamp < datetime('now', '-30 days')"
+    ).rowcount
+    conn.commit()
+
+    if artigos or urls or logs:
+        conn.execute("VACUUM")
+        print(f"[Poda] {artigos} artigos, {urls} URLs expiradas e {logs} linhas de log removidas.")

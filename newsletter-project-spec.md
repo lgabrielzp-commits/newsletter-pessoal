@@ -571,7 +571,7 @@ Criar uma **newsletter pessoal automática** que:
 - **S3/Drive** (salvar arquivo em nuvem)
 - **Slack message** (se integrado)
 
-**Preferência inicial:** Email para `lgabrielzp@gmail.com`
+**Preferência inicial:** Email para `<seu-email>`
 
 ### 5.3 Agendamento
 - Executar diariamente (horário TBD — sugerir 6-7am horário Brasília)
@@ -637,7 +637,7 @@ NEWSLETTER_CONFIG = {
     },
     "delivery": {
         "method": "email",
-        "recipient": "lgabrielzp@gmail.com",
+        "recipient": "<seu-email>",
         "subject": "Newsletter Pessoal - {date}"
     },
     "design": {

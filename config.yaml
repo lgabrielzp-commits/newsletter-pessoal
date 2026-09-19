@@ -129,7 +129,9 @@ coleta:
   janela_horas: 48
   timeout_segundos: 15
   max_tentativas: 3
-  user_agent: "NewsletterPessoalBot/0.1 (+lgabrielzp@gmail.com)"
+  user_agent: "NewsletterPessoalBot/0.1 (+https://github.com/lgabrielzp-commits/newsletter-pessoal)"
+  max_bytes_resposta: 5000000   # teto por página baixada, pra não estourar memória
+  respeitar_robots: true
 
 curadoria:
   max_noticias_por_categoria: 5
@@ -152,10 +154,15 @@ publicacao:
   branch: "gh-pages"
 
 armazenamento:
-  # branch órfã onde o SQLite fica salvo entre execuções no GitHub Actions
+  # Branch órfã com o estado mínimo entre execuções no GitHub Actions
   # (runners são efêmeros — sem isso, a dedupe de 7 dias não funcionaria).
-  # Rodando local, isso é ignorado: o banco fica só na sua máquina.
+  # Guarda APENAS urls_enviadas + registro das edições, num JSON pequeno:
+  # o banco completo tem texto integral de matérias pagas e dados pessoais,
+  # e a branch vive num repositório público. Local, isso é ignorado.
   branch: "dados"
+  # Poda de artigos a cada execução. A tabela é cache de trabalho: sem podar,
+  # cresce ~4MB/dia e o clustering O(n²) passa a consumir dezenas de GB.
+  retencao_artigos_dias: 3
 
 entrega:
   metodo: "email"

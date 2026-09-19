@@ -42,13 +42,22 @@ def _montar_assunto(config: Config, conn: sqlite3.Connection, data_iso: str) -> 
     return f"Newsletter {data_curta}: {destaques}"
 
 
-def executar_entrega(config: Config, conn: sqlite3.Connection) -> None:
+def _mascarar(email: str) -> str:
+    """l***@gmail.com — o log vai parar num banco cujo conteúdo pode ser
+    publicado; endereço completo não tem por que estar lá."""
+    usuario, _, dominio = email.partition("@")
+    if not dominio:
+        return "***"
+    return f"{usuario[:1]}***@{dominio}"
+
+
+def executar_entrega(config: Config, conn: sqlite3.Connection) -> bool:
     if not config.secrets.resend_api_key:
         print("[Fase 8] RESEND_API_KEY não definida — pulando entrega.")
-        return
+        return True
     if not config.secrets.recipient:
         print("[Fase 8] NEWSLETTER_RECIPIENT não definido — pulando entrega.")
-        return
+        return True
 
     agora = datetime.now(ZoneInfo(config.schedule.timezone))
     data_iso = agora.strftime("%Y-%m-%d")
@@ -56,10 +65,12 @@ def executar_entrega(config: Config, conn: sqlite3.Connection) -> None:
 
     if not email_path.exists():
         print(f"[Fase 8] {email_path} não existe (rode a Fase 6 antes). Nada a enviar.")
-        return
+        return False
 
     html = email_path.read_text(encoding="utf-8")
-    assunto = _montar_assunto(config, conn, data_iso)
+    # \r e \n num assunto são vetor clássico de injeção de cabeçalho de email
+    assunto = " ".join(_montar_assunto(config, conn, data_iso).split())[:200]
+    destinatario_mascarado = _mascarar(config.secrets.recipient)
 
     payload = {
         "from": REMETENTE_PADRAO,
@@ -68,15 +79,20 @@ def executar_entrega(config: Config, conn: sqlite3.Connection) -> None:
         "html": html,
     }
 
-    resp = httpx.post(
-        RESEND_API_URL,
-        headers={
-            "Authorization": f"Bearer {config.secrets.resend_api_key}",
-            "Content-Type": "application/json",
-        },
-        json=payload,
-        timeout=30,
-    )
+    try:
+        resp = httpx.post(
+            RESEND_API_URL,
+            headers={
+                "Authorization": f"Bearer {config.secrets.resend_api_key}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+            timeout=30,
+        )
+    except Exception as exc:
+        print(f"[Fase 8] Falha de rede ao enviar: {exc!r}")
+        log(conn, fase="fase8_entrega", status="erro", mensagem=f"falha de rede: {exc!r}")
+        return False
 
     conn.execute(
         """
@@ -89,19 +105,20 @@ def executar_entrega(config: Config, conn: sqlite3.Connection) -> None:
         """,
         (
             data_iso,
-            str(email_path),
+            # relativo: caminho absoluto vazava o diretório do runner/usuário
+            f"output/{data_iso}/email.html",
             f"{config.publicacao.base_url}/{data_iso}/" if config.publicacao.base_url else None,
             "enviado" if resp.status_code < 300 else "falha",
         ),
     )
 
     if resp.status_code >= 300:
-        print(f"[Fase 8] Falha ao enviar ({resp.status_code}): {resp.text}")
-        log(conn, fase="fase8_entrega", status="erro", mensagem=f"{resp.status_code}: {resp.text}")
+        print(f"[Fase 8] Falha ao enviar ({resp.status_code}): {resp.text[:300]}")
+        log(conn, fase="fase8_entrega", status="erro",
+            mensagem=f"HTTP {resp.status_code} da Resend")
         conn.commit()
-        return
+        return False
 
-    resend_id = resp.json().get("id", "?")
     conn.execute(
         "UPDATE edicoes SET enviado_em = datetime('now') WHERE data = ?", (data_iso,)
     )
@@ -119,5 +136,7 @@ def executar_entrega(config: Config, conn: sqlite3.Connection) -> None:
     )
     conn.commit()
 
-    print(f'[Fase 8] Email enviado com sucesso pra {config.secrets.recipient} (assunto: "{assunto}", id Resend: {resend_id})')
-    log(conn, fase="fase8_entrega", status="ok", mensagem=f"enviado para {config.secrets.recipient}, resend_id={resend_id}")
+    print(f'[Fase 8] Email enviado com sucesso pra {destinatario_mascarado} (assunto: "{assunto}")')
+    log(conn, fase="fase8_entrega", status="ok",
+        mensagem=f"enviado para {destinatario_mascarado}")
+    return True

@@ -11,6 +11,7 @@ faz sentido ficar acessível por URL pública.
 
 from __future__ import annotations
 
+import re
 import shutil
 import sqlite3
 from datetime import datetime
@@ -25,10 +26,22 @@ from newsletter.render import OUTPUT_DIR, TEMPLATES_DIR, _data_extenso
 WORKTREE_DIR = ROOT_DIR / ".gh-pages-worktree"
 
 
+_RE_DATA = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
 def _montar_arquivo_index(config: Config) -> str:
-    """Lista todas as edições já publicadas (pastas de data em output/)."""
+    """Lista as edições que existem na branch publicada.
+
+    Tem que ler do worktree do gh-pages, não de output/: no GitHub Actions o
+    runner é efêmero e output/ só contém a edição do dia, então gerar o índice
+    a partir dele apagava todo o histórico do arquivo a cada publicação.
+    """
     datas = sorted(
-        (p.name for p in OUTPUT_DIR.iterdir() if p.is_dir() and p.name != "hoje"),
+        (
+            p.name
+            for p in WORKTREE_DIR.iterdir()
+            if p.is_dir() and _RE_DATA.match(p.name) and (p / "index.html").exists()
+        ),
         reverse=True,
     )
     edicoes = []
@@ -43,10 +56,10 @@ def _montar_arquivo_index(config: Config) -> str:
     return env.get_template("arquivo.html.jinja").render(edicoes=edicoes, design=config.design)
 
 
-def executar_publicacao(config: Config, conn: sqlite3.Connection) -> None:
+def executar_publicacao(config: Config, conn: sqlite3.Connection) -> bool:
     if not OUTPUT_DIR.exists() or not any(OUTPUT_DIR.glob("*/index.html")):
         print("[Fase 7] Nenhuma edição renderizada (rode a Fase 6 antes). Nada a publicar.")
-        return
+        return True
 
     branch = config.publicacao.branch
     try:
@@ -54,12 +67,12 @@ def executar_publicacao(config: Config, conn: sqlite3.Connection) -> None:
     except RuntimeError as exc:
         print(f"[Fase 7] {exc}")
         log(conn, fase="fase7_publicacao", status="erro", mensagem=str(exc))
-        return
+        return False
 
     # sincroniza cada edição (só o index.html — o email.html fica de fora do site público)
     datas_publicadas = []
     for pasta_data in sorted(OUTPUT_DIR.iterdir()):
-        if not pasta_data.is_dir() or pasta_data.name == "hoje":
+        if not pasta_data.is_dir() or not _RE_DATA.match(pasta_data.name):
             continue
         index_origem = pasta_data / "index.html"
         if not index_origem.exists():
@@ -72,7 +85,7 @@ def executar_publicacao(config: Config, conn: sqlite3.Connection) -> None:
 
     if not datas_publicadas:
         print("[Fase 7] Nenhum index.html encontrado em output/. Nada a publicar.")
-        return
+        return True
 
     mais_recente = sorted(datas_publicadas)[-1]
     hoje_dir = WORKTREE_DIR / "hoje"
@@ -87,7 +100,7 @@ def executar_publicacao(config: Config, conn: sqlite3.Connection) -> None:
     if diff_check.returncode == 0:
         print("[Fase 7] Nada novo pra publicar (site já está atualizado).")
         log(conn, fase="fase7_publicacao", status="ok", mensagem="sem mudanças")
-        return
+        return True
 
     commit = run(
         ["git", "commit", "-m", f"Publica edição de {mais_recente}"],
@@ -96,13 +109,17 @@ def executar_publicacao(config: Config, conn: sqlite3.Connection) -> None:
     if commit.returncode != 0:
         print(f"[Fase 7] Falha ao commitar: {commit.stderr}")
         log(conn, fase="fase7_publicacao", status="erro", mensagem=commit.stderr)
-        return
+        return False
 
     push = run(["git", "push", "origin", branch], cwd=WORKTREE_DIR)
     if push.returncode != 0:
+        # tenta uma vez com rebase: outra execução pode ter publicado no meio
+        run(["git", "pull", "--rebase", "origin", branch], cwd=WORKTREE_DIR)
+        push = run(["git", "push", "origin", branch], cwd=WORKTREE_DIR)
+    if push.returncode != 0:
         print(f"[Fase 7] Falha ao publicar (push): {push.stderr}")
         log(conn, fase="fase7_publicacao", status="erro", mensagem=push.stderr)
-        return
+        return False
 
     url_hoje = f"{config.publicacao.base_url}/hoje/" if config.publicacao.base_url else "(base_url não configurada)"
     print(f"[Fase 7] Publicado com sucesso: {url_hoje}")
@@ -114,3 +131,4 @@ def executar_publicacao(config: Config, conn: sqlite3.Connection) -> None:
         status="ok",
         mensagem=f"{len(datas_publicadas)} edições publicadas em {branch}, mais recente {mais_recente}",
     )
+    return True

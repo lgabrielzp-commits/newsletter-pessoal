@@ -12,9 +12,17 @@ on:
 permissions:
   contents: write
 
+# Duas execuções ao mesmo tempo (cron + manual) disputariam o push nas
+# branches gh-pages/dados e uma delas falharia.
+concurrency:
+  group: newsletter
+  cancel-in-progress: false
+
 jobs:
   rodar:
     runs-on: ubuntu-latest
+    # sem isso, um fetch travado segura o runner pelo limite padrão de 6h
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4

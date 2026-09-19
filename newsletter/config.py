@@ -48,6 +48,8 @@ class ColetaConfig(BaseModel):
     timeout_segundos: int = 15
     max_tentativas: int = 3
     user_agent: str = "NewsletterPessoalBot/0.1"
+    max_bytes_resposta: int = 5_000_000
+    respeitar_robots: bool = True
 
 
 class CuradoriaConfig(BaseModel):
@@ -76,6 +78,9 @@ class PublicacaoConfig(BaseModel):
 
 class ArmazenamentoConfig(BaseModel):
     branch: str = "dados"
+    # Poda: artigos mais velhos que isso são apagados a cada execução. Sem isso
+    # o banco cresce ~4MB/dia pra sempre e o clustering (O(n²)) explode.
+    retencao_artigos_dias: int = 3
 
 
 class EntregaConfig(BaseModel):
