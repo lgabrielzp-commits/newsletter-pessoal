@@ -1,6 +1,6 @@
 {
   "versao": 1,
-  "atualizado_em": "2026-09-19T04:38:19+00:00",
+  "atualizado_em": "2026-09-19T04:43:09+00:00",
   "urls_enviadas": [
     {
       "url": "https://www1.folha.uol.com.br/mundo/2026/09/trump-recebera-xi-jinping-no-aeroporto-e-oferecera-jantar-acompanhado-de-ceos-de-big-techs.shtml",
@@ -101,13 +101,61 @@
     {
       "url": "https://www.bloomberg.com/news/articles/2026-09-19/mark-walter-s-lieutenants-give-prosecutors-firsthand-accounts",
       "data_envio": "2026-09-19 04:26:54"
+    },
+    {
+      "url": "https://valor.globo.com/mundo/noticia/2026/09/19/trump-receber-xi-jinping-no-aeroporto-e-oferecer-jantar-acompanhado-de-ceos-de-big-techs.ghtml",
+      "data_envio": "2026-09-19 04:43:09"
+    },
+    {
+      "url": "https://redir.folha.com.br/redir/online/poder/rss091/*https://www1.folha.uol.com.br/poder/2026/09/conversas-extraidas-do-celular-de-vorcaro-mostram-gonet-e-ex-banqueiro-em-noite-de-charutos-e-uisque-em-londres.shtml",
+      "data_envio": "2026-09-19 04:43:09"
+    },
+    {
+      "url": "https://valor.globo.com/politica/noticia/2026/09/19/secretria-de-nunes-anuncia-reajuste-a-entidades-em-jantar-com-cartazes-eleitorais-da-primeira-dama.ghtml",
+      "data_envio": "2026-09-19 04:43:09"
+    },
+    {
+      "url": "https://redir.folha.com.br/redir/online/tec/rss091/*https://c-level.folha.uol.com.br/ia/2026/09/governador-da-california-assina-decreto-para-explorar-botao-de-desligamento-da-ia.shtml",
+      "data_envio": "2026-09-19 04:43:09"
+    },
+    {
+      "url": "https://redir.folha.com.br/redir/online/tec/rss091/*https://c-level.folha.uol.com.br/ia/2026/09/funcionarios-da-microsoft-e-da-openai-temem-que-ia-cometa-maior-roubo-de-trabalho-da-historia.shtml",
+      "data_envio": "2026-09-19 04:43:09"
+    },
+    {
+      "url": "https://redir.folha.com.br/redir/online/tec/rss091/*https://c-level.folha.uol.com.br/ia/2026/09/anthropic-diz-que-sistemas-de-ia-avancam-para-criar-versoes-de-si-mesmos.shtml",
+      "data_envio": "2026-09-19 04:43:09"
+    },
+    {
+      "url": "https://redir.folha.com.br/redir/online/tec/rss091/*https://c-level.folha.uol.com.br/ia/2026/09/hackers-do-bem-invadem-openai-usando-programa-da-rival-anthropic-diz-dona-do-chatgpt.shtml",
+      "data_envio": "2026-09-19 04:43:09"
+    },
+    {
+      "url": "https://www.estadao.com.br/internacional/trump-reunira-delcy-rodriguez-venezuela-proxima-terca-onu-npr/",
+      "data_envio": "2026-09-19 04:43:09"
+    },
+    {
+      "url": "https://www.estadao.com.br/sao-paulo/milton-leite-diz-ser-inocente-apos-se-entregar-so-se-arrepende-quem-comete-crime-npr/",
+      "data_envio": "2026-09-19 04:43:09"
+    },
+    {
+      "url": "https://www.estadao.com.br/economia/economistas-avaliam-cenario-da-economia-brasileira-no-iii-seminario-de-analise-conjuntural/",
+      "data_envio": "2026-09-19 04:43:09"
+    },
+    {
+      "url": "https://www.bloomberg.com/news/articles/2026-09-19/blackstone-sees-india-nearing-tipping-point-for-foreign-capital",
+      "data_envio": "2026-09-19 04:43:09"
+    },
+    {
+      "url": "https://www.theverge.com/ai-artificial-intelligence/997358/what-hollywood-thinks-about-existential-ai-warnings",
+      "data_envio": "2026-09-19 04:43:09"
     }
   ],
   "edicoes": [
     {
       "data": "2026-09-19",
       "url_publicada": "https://lgabrielzp-commits.github.io/newsletter-pessoal/2026-09-19/",
-      "enviado_em": "2026-09-19 04:26:54",
+      "enviado_em": "2026-09-19 04:43:09",
       "status": "enviado"
     }
   ]
