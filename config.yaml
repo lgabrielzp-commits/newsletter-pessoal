@@ -1,0 +1,100 @@
+# Configuração da Newsletter Pessoal Automatizada
+# Editável sem mexer em código.
+
+categorias:
+  - id: financas
+    nome: "Finanças & Economia"
+  - id: politica
+    nome: "Política Brasil"
+  - id: ia
+    nome: "IA & Tecnologia"
+
+fontes:
+  # peso: influencia o ranking (Fase 4). 1.0 = padrão.
+  # paywall: true faz o pipeline preferir excerpt + cobertura cruzada.
+  - id: g1
+    nome: "G1"
+    peso: 1.0
+    paywall: false
+    categorias: [politica, financas]
+
+  - id: folha
+    nome: "Folha de S.Paulo"
+    peso: 1.1
+    paywall: true
+    categorias: [politica, financas, ia]
+
+  - id: estadao
+    nome: "Estadão"
+    peso: 1.1
+    paywall: true
+    categorias: [politica, financas]
+
+  - id: infomoney
+    nome: "InfoMoney"
+    peso: 1.0
+    paywall: false
+    categorias: [financas]
+
+  - id: nyt
+    nome: "New York Times"
+    peso: 1.0
+    paywall: true
+    categorias: [ia, financas]
+
+  - id: agencia_brasil
+    nome: "Agência Brasil"
+    peso: 0.9
+    paywall: false
+    categorias: [politica, financas]
+
+  - id: bcb
+    nome: "Banco Central do Brasil"
+    peso: 1.0
+    paywall: false
+    categorias: [financas]
+
+  - id: poder360
+    nome: "Poder360"
+    peso: 0.9
+    paywall: false
+    categorias: [politica]
+
+  - id: jota
+    nome: "JOTA"
+    peso: 0.9
+    paywall: false
+    categorias: [politica]
+
+coleta:
+  janela_horas: 48
+  timeout_segundos: 15
+  max_tentativas: 3
+  user_agent: "NewsletterPessoalBot/0.1 (+lgabrielzp@gmail.com)"
+
+curadoria:
+  max_noticias_por_categoria: 5
+  janela_dedupe_dias: 7
+  limiar_similaridade_titulo: 0.90
+  limiar_similaridade_conteudo: 0.75
+
+modelos:
+  triagem: "claude-haiku-4-5-20251001"
+  redacao: "claude-sonnet-5"
+
+schedule:
+  hora: "06:00"
+  timezone: "America/Sao_Paulo"
+  frequencia: "diaria"
+
+publicacao:
+  # preenchido na Fase 7 (GitHub Pages)
+  base_url: ""
+
+entrega:
+  metodo: "email"
+  assunto_template: "Newsletter — {data}"
+
+design:
+  cor_primaria: "#c41e3a"
+  cor_fundo_header: "#1a1a1a"
