@@ -110,7 +110,11 @@ async def _redigir_um(
         try:
             resp = await client.messages.create(
                 model=config.modelos.redacao,
-                max_tokens=1500,
+                # 1500 já causou truncamento real em produção (JSON cortado no
+                # meio, faltando campos obrigatórios) em clusters com mais
+                # fontes/perspectivas. 3000 dá margem confortável pro maior
+                # caso (título + resumo + 4 parágrafos + 2 perspectivas em PT-BR).
+                max_tokens=3000,
                 system=SYSTEM_PROMPT,
                 tools=[TOOL_SCHEMA],
                 tool_choice={"type": "tool", "name": "redigir_materia"},
@@ -118,6 +122,11 @@ async def _redigir_um(
             )
         except Exception as exc:
             print(f"  [erro] cluster {cluster_id}: {exc!r}")
+            return None
+
+        if resp.stop_reason == "max_tokens":
+            print(f"  [erro] cluster {cluster_id}: resposta truncada por max_tokens "
+                  f"(considere aumentar o limite se isso persistir)")
             return None
 
         for block in resp.content:
