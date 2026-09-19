@@ -46,6 +46,18 @@ CREATE TABLE IF NOT EXISTS urls_enviadas (
     edicao_id INTEGER REFERENCES edicoes(id)
 );
 
+CREATE TABLE IF NOT EXISTS materias (
+    cluster_id INTEGER PRIMARY KEY,
+    categoria TEXT NOT NULL,
+    titulo TEXT NOT NULL,
+    resumo TEXT NOT NULL,
+    texto_completo TEXT NOT NULL,
+    perspectivas TEXT,  -- JSON: [{"fonte": "...", "texto": "..."}]
+    badges TEXT NOT NULL,  -- JSON: ["Folha de S.Paulo", "G1"]
+    url TEXT NOT NULL,
+    criado_em TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS log_execucao (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     timestamp TEXT NOT NULL DEFAULT (datetime('now')),
