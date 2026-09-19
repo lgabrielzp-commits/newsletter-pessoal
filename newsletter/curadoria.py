@@ -169,7 +169,11 @@ async def _classificar_um(
                         "required": ["categoria", "substantiva", "relevancia"],
                     },
                 }],
-                tool_choice={"type": "tool", "name": "classificar_noticia"},
+                tool_choice={
+                    "name": "classificar_noticia",
+                    "type": "tool",
+                    "disable_parallel_tool_use": True,  # uma classificação por notícia
+                },
                 messages=[{"role": "user", "content": prompt}],
             )
         except Exception:

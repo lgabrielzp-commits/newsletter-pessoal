@@ -141,8 +141,10 @@ curadoria:
   limiar_similaridade_conteudo: 0.75
 
 modelos:
-  triagem: "claude-haiku-4-5-20251001"
-  redacao: "claude-sonnet-5"
+  # IDs canônicos, sem sufixo de data (o sufixo aponta pra um snapshot fixo
+  # e deixa de receber melhorias do modelo).
+  triagem: "claude-haiku-4-5"   # US$ 1,00/1M entrada · US$ 5,00/1M saída
+  redacao: "claude-sonnet-5"    # US$ 2,00/1M entrada · US$ 10,00/1M saída
 
 schedule:
   hora: "06:00"

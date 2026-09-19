@@ -123,14 +123,22 @@ async def _redigir_um(
         try:
             resp = await client.messages.create(
                 model=config.modelos.redacao,
-                # 1500 já causou truncamento real em produção (JSON cortado no
-                # meio, faltando campos obrigatórios) em clusters com mais
-                # fontes/perspectivas. 3000 dá margem confortável pro maior
-                # caso (título + resumo + 4 parágrafos + 2 perspectivas em PT-BR).
-                max_tokens=3000,
+                # max_tokens é TETO, não cobrança: só se paga o que for gerado.
+                # Manter apertado (1500, depois 3000) foi a causa real dos
+                # truncamentos — uma matéria de 3 fontes precisa de ~3.300.
+                max_tokens=8000,
                 system=SYSTEM_PROMPT,
                 tools=[TOOL_SCHEMA],
-                tool_choice={"type": "tool", "name": "redigir_materia"},
+                tool_choice={
+                    "name": "redigir_materia",
+                    "type": "tool",
+                    # Sem isto o modelo devolve UM tool_use POR FONTE (medido:
+                    # 3 blocos num cluster de 3 fontes). O código só lia o
+                    # primeiro, então pagávamos 3 matérias, usávamos 1 — e a
+                    # usada era a versão de uma fonte só, não a síntese das
+                    # três, que é justamente o objetivo do cluster.
+                    "disable_parallel_tool_use": True,
+                },
                 messages=[{"role": "user", "content": prompt}],
             )
         except Exception as exc:
