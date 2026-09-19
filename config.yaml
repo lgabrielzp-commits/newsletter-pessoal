@@ -12,107 +12,118 @@ categorias:
 fontes:
   # peso: influencia o ranking (Fase 4). 1.0 = padrão.
   # paywall: true faz o pipeline preferir excerpt + cobertura cruzada.
-  # feeds: URLs RSS verificadas manualmente (curl) em 2026-09-19.
+  # feeds: URLs RSS verificadas manualmente (curl) em 2026-09-19. Cada feed
+  #   carrega sua(s) própria(s) categoria(s) — importante quando uma fonte
+  #   publica feeds separados por editoria (ex.: Folha mercado/poder/tec):
+  #   taggear pelo feed evita que notícia de política "vaze" pro pool de IA
+  #   só porque a fonte, no geral, também cobre IA.
   - id: g1
     nome: "G1"
     peso: 1.0
     paywall: false
-    categorias: [politica, financas]
     feeds:
-      - https://g1.globo.com/rss/g1/economia/
-      - https://g1.globo.com/rss/g1/politica/
+      - url: https://g1.globo.com/rss/g1/economia/
+        categorias: [financas]
+      - url: https://g1.globo.com/rss/g1/politica/
+        categorias: [politica]
 
   - id: folha
     nome: "Folha de S.Paulo"
     peso: 1.1
     paywall: true
-    categorias: [politica, financas, ia]
     feeds:
-      - https://feeds.folha.uol.com.br/mercado/rss091.xml
-      - https://feeds.folha.uol.com.br/poder/rss091.xml
-      - https://feeds.folha.uol.com.br/tec/rss091.xml
+      - url: https://feeds.folha.uol.com.br/mercado/rss091.xml
+        categorias: [financas]
+      - url: https://feeds.folha.uol.com.br/poder/rss091.xml
+        categorias: [politica]
+      - url: https://feeds.folha.uol.com.br/tec/rss091.xml
+        categorias: [ia]
 
   - id: estadao
     nome: "Estadão"
     peso: 1.1
     paywall: true
-    categorias: [politica, financas]
     feeds:
-      - https://www.estadao.com.br/arc/outboundfeeds/rss/?outputType=xml
+      # feed único e geral (não achei feeds por editoria) — hint ambíguo
+      - url: https://www.estadao.com.br/arc/outboundfeeds/rss/?outputType=xml
+        categorias: [politica, financas]
 
   - id: infomoney
     nome: "InfoMoney"
     peso: 1.0
     paywall: false
-    categorias: [financas]
     feeds:
-      - https://www.infomoney.com.br/feed/
+      - url: https://www.infomoney.com.br/feed/
+        categorias: [financas]
 
   - id: nyt
     nome: "New York Times"
     peso: 1.0
     paywall: true
-    categorias: [ia, financas]
     feeds:
-      - https://rss.nytimes.com/services/xml/rss/nyt/Business.xml
-      - https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml
+      - url: https://rss.nytimes.com/services/xml/rss/nyt/Business.xml
+        categorias: [financas]
+      - url: https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml
+        categorias: [ia]
 
   - id: valor_economico
     nome: "Valor Econômico"
     peso: 1.1
     paywall: true
-    categorias: [financas, politica]
     feeds:
-      - https://valor.globo.com/rss/valor
+      # feed único (não achei feed separado de política) — hint ambíguo
+      - url: https://valor.globo.com/rss/valor
+        categorias: [financas, politica]
 
   - id: bloomberg
     nome: "Bloomberg"
     peso: 1.1
     paywall: true
-    categorias: [financas]
     feeds:
-      - https://feeds.bloomberg.com/markets/news.rss
+      - url: https://feeds.bloomberg.com/markets/news.rss
+        categorias: [financas]
 
   - id: the_verge
     nome: "The Verge"
     peso: 1.0
     paywall: false
-    categorias: [ia]
     feeds:
-      - https://www.theverge.com/rss/index.xml
+      - url: https://www.theverge.com/rss/index.xml
+        categorias: [ia]
 
   - id: mit_tech_review
     nome: "MIT Technology Review"
     peso: 1.0
     paywall: true
-    categorias: [ia]
     feeds:
-      - https://www.technologyreview.com/feed/
+      - url: https://www.technologyreview.com/feed/
+        categorias: [ia]
 
   - id: agencia_brasil
     nome: "Agência Brasil"
     peso: 0.9
     paywall: false
-    categorias: [politica, financas]
     feeds:
-      - https://agenciabrasil.ebc.com.br/rss/politica/feed.xml
-      - https://agenciabrasil.ebc.com.br/rss/economia/feed.xml
+      - url: https://agenciabrasil.ebc.com.br/rss/politica/feed.xml
+        categorias: [politica]
+      - url: https://agenciabrasil.ebc.com.br/rss/economia/feed.xml
+        categorias: [financas]
 
   - id: poder360
     nome: "Poder360"
     peso: 0.9
     paywall: false
-    categorias: [politica]
     feeds:
-      - https://www.poder360.com.br/feed/
+      - url: https://www.poder360.com.br/feed/
+        categorias: [politica]
 
   - id: jota
     nome: "JOTA"
     peso: 0.9
     paywall: false
-    categorias: [politica]
     feeds:
-      - https://www.jota.info/feed
+      - url: https://www.jota.info/feed
+        categorias: [politica]
 
 coleta:
   janela_horas: 48
@@ -122,6 +133,7 @@ coleta:
 
 curadoria:
   max_noticias_por_categoria: 5
+  candidatos_pre_filtro_por_categoria: 20  # quantos vão pra triagem do Haiku, antes do corte final
   janela_dedupe_dias: 7
   limiar_similaridade_titulo: 0.90
   limiar_similaridade_conteudo: 0.75

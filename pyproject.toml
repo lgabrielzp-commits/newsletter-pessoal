@@ -13,6 +13,7 @@ dependencies = [
     "trafilatura>=1.8",
     "rapidfuzz>=3.6",
     "scikit-learn>=1.4",
+    "anthropic>=0.40",
 ]
 
 [project.optional-dependencies]

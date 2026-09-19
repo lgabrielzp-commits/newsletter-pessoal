@@ -28,6 +28,7 @@ class ArtigoBruto:
     fonte_id: str
     data_publicacao: datetime | None
     excerpt: str
+    categorias_feed: str  # categoria(s) do feed de origem, ex. "financas" ou "politica,financas"
 
 
 def _parse_data(entry: dict) -> datetime | None:
@@ -67,11 +68,11 @@ async def _coletar_fonte(
     erros: list[str] = []
     agora = datetime.now(timezone.utc)
 
-    for feed_url in fonte.feeds:
+    for feed in fonte.feeds:
         try:
-            conteudo = await _fetch_feed(client, feed_url)
+            conteudo = await _fetch_feed(client, feed.url)
         except Exception as exc:  # noqa: BLE001 — queremos seguir coletando as outras fontes
-            erros.append(f"{feed_url}: {exc!r}")
+            erros.append(f"{feed.url}: {exc!r}")
             continue
 
         parsed = feedparser.parse(conteudo)
@@ -93,6 +94,7 @@ async def _coletar_fonte(
                     fonte_id=fonte.id,
                     data_publicacao=data_pub,
                     excerpt=excerpt.strip(),
+                    categorias_feed=",".join(feed.categorias),
                 )
             )
 
@@ -130,8 +132,8 @@ def salvar_artigos(conn: sqlite3.Connection, artigos: list[ArtigoBruto]) -> tupl
         cur = conn.execute(
             """
             INSERT OR IGNORE INTO artigos
-                (url_canonica, titulo, fonte_id, data_publicacao, excerpt)
-            VALUES (?, ?, ?, ?, ?)
+                (url_canonica, titulo, fonte_id, data_publicacao, excerpt, categorias_feed)
+            VALUES (?, ?, ?, ?, ?, ?)
             """,
             (
                 artigo.url_canonica,
@@ -139,6 +141,7 @@ def salvar_artigos(conn: sqlite3.Connection, artigos: list[ArtigoBruto]) -> tupl
                 artigo.fonte_id,
                 artigo.data_publicacao.isoformat() if artigo.data_publicacao else None,
                 artigo.excerpt,
+                artigo.categorias_feed,
             ),
         )
         if cur.rowcount:

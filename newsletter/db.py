@@ -71,6 +71,7 @@ _COLUNAS_NOVAS = {
         "url_final": "TEXT",
         "http_status": "INTEGER",
         "paywall_provavel": "INTEGER",
+        "categorias_feed": "TEXT",  # categoria(s) do feed RSS de origem, ex. "financas" ou "politica,financas"
     },
 }
 

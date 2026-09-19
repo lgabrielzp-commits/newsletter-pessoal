@@ -19,13 +19,28 @@ class Categoria(BaseModel):
     nome: str
 
 
+class FeedFonte(BaseModel):
+    url: str
+    categorias: list[str] = Field(default_factory=list)
+
+
 class Fonte(BaseModel):
     id: str
     nome: str
     peso: float = 1.0
     paywall: bool = False
-    categorias: list[str] = Field(default_factory=list)
-    feeds: list[str] = Field(default_factory=list)
+    feeds: list[FeedFonte] = Field(default_factory=list)
+
+    @property
+    def categorias(self) -> list[str]:
+        """União das categorias de todos os feeds — usado só como fallback
+        grosseiro; a categoria real do artigo vem do feed que o originou."""
+        vistas: list[str] = []
+        for feed in self.feeds:
+            for cat in feed.categorias:
+                if cat not in vistas:
+                    vistas.append(cat)
+        return vistas
 
 
 class ColetaConfig(BaseModel):
@@ -37,6 +52,7 @@ class ColetaConfig(BaseModel):
 
 class CuradoriaConfig(BaseModel):
     max_noticias_por_categoria: int = 5
+    candidatos_pre_filtro_por_categoria: int = 20
     janela_dedupe_dias: int = 7
     limiar_similaridade_titulo: float = 0.90
     limiar_similaridade_conteudo: float = 0.75
