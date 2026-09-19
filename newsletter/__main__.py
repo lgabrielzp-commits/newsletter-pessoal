@@ -9,9 +9,11 @@ from __future__ import annotations
 import argparse
 import sys
 
+from newsletter.clustering import executar_clustering
 from newsletter.collector import executar_coleta
 from newsletter.config import DB_PATH, load_config
 from newsletter.db import init_db, log
+from newsletter.extraction import executar_extracao
 from newsletter.links import executar_gestao_links
 
 
@@ -53,6 +55,8 @@ def main() -> int:
 
     executar_coleta(config, conn)
     executar_gestao_links(config, conn)
+    executar_extracao(config, conn)
+    executar_clustering(conn, config.curadoria)
 
     conn.close()
     return 0
