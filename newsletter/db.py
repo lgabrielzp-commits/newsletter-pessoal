@@ -64,10 +64,31 @@ def get_connection(db_path: Path) -> sqlite3.Connection:
     return conn
 
 
+# Colunas adicionadas depois do schema inicial (Fase 2+). Migração simples via
+# ALTER TABLE em vez de recriar o banco, pra não perder o histórico coletado.
+_COLUNAS_NOVAS = {
+    "artigos": {
+        "url_final": "TEXT",
+        "http_status": "INTEGER",
+        "paywall_provavel": "INTEGER",
+    },
+}
+
+
+def _migrar(conn: sqlite3.Connection) -> None:
+    for tabela, colunas in _COLUNAS_NOVAS.items():
+        existentes = {row["name"] for row in conn.execute(f"PRAGMA table_info({tabela})")}
+        for coluna, tipo in colunas.items():
+            if coluna not in existentes:
+                conn.execute(f"ALTER TABLE {tabela} ADD COLUMN {coluna} {tipo}")
+    conn.commit()
+
+
 def init_db(db_path: Path) -> sqlite3.Connection:
     conn = get_connection(db_path)
     conn.executescript(SCHEMA)
     conn.commit()
+    _migrar(conn)
     return conn
 
 

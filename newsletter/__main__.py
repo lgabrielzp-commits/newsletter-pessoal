@@ -12,6 +12,7 @@ import sys
 from newsletter.collector import executar_coleta
 from newsletter.config import DB_PATH, load_config
 from newsletter.db import init_db, log
+from newsletter.links import executar_gestao_links
 
 
 def fase0_setup():
@@ -51,6 +52,7 @@ def main() -> int:
         return 0
 
     executar_coleta(config, conn)
+    executar_gestao_links(config, conn)
 
     conn.close()
     return 0
