@@ -148,8 +148,8 @@ schedule:
   frequencia: "diaria"
 
 publicacao:
-  # preenchido na Fase 7 (GitHub Pages)
-  base_url: ""
+  base_url: "https://lgabrielzp-commits.github.io/newsletter-pessoal"
+  branch: "gh-pages"
 
 entrega:
   metodo: "email"

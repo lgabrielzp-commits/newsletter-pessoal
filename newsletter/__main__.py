@@ -16,6 +16,7 @@ from newsletter.curadoria import executar_curadoria
 from newsletter.db import init_db, log
 from newsletter.extraction import executar_extracao
 from newsletter.links import executar_gestao_links
+from newsletter.publicacao import executar_publicacao
 from newsletter.redacao import executar_redacao
 from newsletter.render import executar_renderizacao
 
@@ -63,6 +64,7 @@ def main() -> int:
     executar_curadoria(config, conn)
     executar_redacao(config, conn)
     executar_renderizacao(config, conn)
+    executar_publicacao(config, conn)
 
     conn.close()
     return 0

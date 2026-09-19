@@ -71,6 +71,7 @@ class ScheduleConfig(BaseModel):
 
 class PublicacaoConfig(BaseModel):
     base_url: str = ""
+    branch: str = "gh-pages"
 
 
 class EntregaConfig(BaseModel):

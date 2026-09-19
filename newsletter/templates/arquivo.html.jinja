@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="0; url=hoje/">
+    <title>Newsletter — Arquivo de edições</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+        .container { max-width: 700px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
+        .header { background: {{ design.cor_fundo_header }}; color: white; padding: 40px; text-align: center; border-bottom: 3px solid {{ design.cor_primaria }}; }
+        .header h1 { font-size: 30px; font-weight: 800; margin-bottom: 8px; }
+        .header p { font-size: 13px; color: #aaa; }
+        .lista { padding: 24px 40px; }
+        .edicao-link {
+            display: block;
+            padding: 14px 0;
+            border-bottom: 1px solid #eee;
+            text-decoration: none;
+            color: #1a1a1a;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .edicao-link:hover { color: {{ design.cor_primaria }}; }
+        .edicao-link:last-child { border-bottom: none; }
+        .badge-hoje { font-size: 11px; color: {{ design.cor_primaria }}; font-weight: 700; text-transform: uppercase; margin-left: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>NEWSLETTER</h1>
+            <p>Arquivo de edições — redirecionando para <a href="hoje/" style="color:#fff;">hoje</a>…</p>
+        </div>
+        <div class="lista">
+            {% for edicao in edicoes %}
+            <a class="edicao-link" href="{{ edicao.data_iso }}/">
+                {{ edicao.data_extenso }}
+                {% if loop.first %}<span class="badge-hoje">Mais recente</span>{% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
