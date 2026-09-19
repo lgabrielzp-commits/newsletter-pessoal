@@ -1,6 +1,6 @@
 {
   "versao": 1,
-  "atualizado_em": "2026-09-19T04:43:09+00:00",
+  "atualizado_em": "2026-09-19T04:47:09+00:00",
   "urls_enviadas": [
     {
       "url": "https://www1.folha.uol.com.br/mundo/2026/09/trump-recebera-xi-jinping-no-aeroporto-e-oferecera-jantar-acompanhado-de-ceos-de-big-techs.shtml",
@@ -149,13 +149,53 @@
     {
       "url": "https://www.theverge.com/ai-artificial-intelligence/997358/what-hollywood-thinks-about-existential-ai-warnings",
       "data_envio": "2026-09-19 04:43:09"
+    },
+    {
+      "url": "https://g1.globo.com/tecnologia/noticia/2026/09/18/video-toquio-testa-robos-coletores-de-lixo-na-estacao-de-trem-mais-movimentada-do-mundo.ghtml",
+      "data_envio": "2026-09-19 04:47:09"
+    },
+    {
+      "url": "https://c-level.folha.uol.com.br/ia/2026/09/cerebros-roboticos-devem-avancar-mas-so-devem-chegar-as-casas-em-2034-preve-startup-chinesa.shtml",
+      "data_envio": "2026-09-19 04:47:09"
+    },
+    {
+      "url": "https://www1.folha.uol.com.br/poder/2026/09/com-maior-fatia-do-fundo-eleitoral-pl-nao-distribui-minimo-da-verba-para-mulheres-e-negros.shtml",
+      "data_envio": "2026-09-19 04:47:09"
+    },
+    {
+      "url": "https://www1.folha.uol.com.br/poder/2026/09/folha-e-uol-promovem-debate-entre-candidatos-ao-senado-em-sp.shtml",
+      "data_envio": "2026-09-19 04:47:09"
+    },
+    {
+      "url": "https://www.estadao.com.br/internacional/arabia-saudita-emite-primeiro-alerta-aereo-desde-a-retomada-dos-combates-no-iemen-npr/",
+      "data_envio": "2026-09-19 04:47:09"
+    },
+    {
+      "url": "https://www.estadao.com.br/economia/governo-do-df-diz-ao-stf-que-lula-nega-socorro-ao-brb-por-motivos-eleitorais-decisao-politica/",
+      "data_envio": "2026-09-19 04:47:09"
+    },
+    {
+      "url": "https://www.estadao.com.br/politica/eleicoes/cury-e-zema-focam-em-criticas-ao-stf-e-a-reajuste-do-bolsa-familia-as-vesperas-da-eleicao/",
+      "data_envio": "2026-09-19 04:47:09"
+    },
+    {
+      "url": "https://www.estadao.com.br/internacional/governador-da-california-assina-decreto-para-criar-interruptor-de-emergencia-da-ia-npr/",
+      "data_envio": "2026-09-19 04:47:09"
+    },
+    {
+      "url": "https://www.theverge.com/policy/997516/california-governor-newsom-ai-kill-switch",
+      "data_envio": "2026-09-19 04:47:09"
+    },
+    {
+      "url": "https://www.theverge.com/ai-artificial-intelligence/997444/openai-hack-claude-heif-heist",
+      "data_envio": "2026-09-19 04:47:09"
     }
   ],
   "edicoes": [
     {
       "data": "2026-09-19",
       "url_publicada": "https://lgabrielzp-commits.github.io/newsletter-pessoal/2026-09-19/",
-      "enviado_em": "2026-09-19 04:43:09",
+      "enviado_em": "2026-09-19 04:47:09",
       "status": "enviado"
     }
   ]
