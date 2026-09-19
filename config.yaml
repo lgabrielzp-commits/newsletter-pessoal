@@ -42,6 +42,30 @@ fontes:
     paywall: true
     categorias: [ia, financas]
 
+  - id: valor_economico
+    nome: "Valor Econômico"
+    peso: 1.1
+    paywall: true
+    categorias: [financas, politica]
+
+  - id: bloomberg
+    nome: "Bloomberg"
+    peso: 1.1
+    paywall: true
+    categorias: [financas]
+
+  - id: the_verge
+    nome: "The Verge"
+    peso: 1.0
+    paywall: false
+    categorias: [ia]
+
+  - id: mit_tech_review
+    nome: "MIT Technology Review"
+    peso: 1.0
+    paywall: true
+    categorias: [ia]
+
   - id: agencia_brasil
     nome: "Agência Brasil"
     peso: 0.9
